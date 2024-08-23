@@ -1,0 +1,537 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Docker 搭建 Minio2024 + picgo + typora 图床 | 知行</title><noscript>开启JavaScript才能访问本站哦~</noscript><link rel="icon" href="https://minio.kl.do/picture/images/avatar.png"><!-- index.css--><link rel="stylesheet" href="/css/index.css?v=2.0.10"><!-- inject head--><meta name="baidu-site-verification" content="codeva-QSNYbdtbVF"><link rel="canonical" href="https://blog.kl.do/posts/4289372700.html"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"><!-- aplayer--><!-- swiper--><!-- fancybox ui--><!-- katex--><!-- Open Graph--><meta name="description" content="中文文档 http:&amp;#x2F;&amp;#x2F;docs.minio.org.cn&amp;#x2F;docs&amp;#x2F; Minio Docker 单节点单磁盘 https:&amp;#x2F;&amp;#x2F;docs.min.io&amp;#x2F;docs&amp;#x2F;minio-docker-quickstart-guide.html 单节点部署又分为单磁盘、多磁盘部署，这里不推荐使用单磁盘，因为"><!-- pwa--><meta name="apple-mobile-web-app-capable" content="知行"><meta name="theme-color" content="var(--efu-main)"><meta name="apple-mobile-web-app-status-bar-style" content="var(--efu-main)"><link rel="bookmark" href="https://minio.kl.do/picture/images/avatar.png"><link rel="apple-touch-icon" href="https://minio.kl.do/picture/images/avatar.png" sizes="180x180"><script>console.log(' %c Solitude %c ' + '2.0.10' + ' %c https://github.com/everfu/hexo-theme-solitude',
+    'background:#35495e ; padding: 1px; border-radius: 3px 0 0 3px;  color: #fff',
+    'background:#ff9a9a ; padding: 1px; border-radius: 0 3px 3px 0;  color: #fff',
+    'background:unset ; padding: 1px; border-radius: 0 3px 3px 0;  color: #fff')
+</script><script>let mdate = "7-7,9-18,12-13";
+mdate = (mdate.split(","));
+let ndate = new Date();
+for (let i of mdate) {
+    if (i === (ndate.getMonth()+1) + "-" + (ndate.getDate())) {
+        document.documentElement.classList.add('memorial');
+    }
+}
+</script><script>(()=>{
+        const saveToLocal = {
+            set: function setWithExpiry(key, value, ttl) {
+                if (ttl === 0)
+                    return
+                const now = new Date()
+                const expiryDay = ttl * 86400000
+                const item = {
+                    value: value,
+                    expiry: now.getTime() + expiryDay
+                }
+                localStorage.setItem(key, JSON.stringify(item))
+            },
+            get: function getWithExpiry(key) {
+                const itemStr = localStorage.getItem(key)
+
+                if (!itemStr) {
+                    return undefined
+                }
+                const item = JSON.parse(itemStr)
+                const now = new Date()
+
+                if (now.getTime() > item.expiry) {
+                    localStorage.removeItem(key)
+                    return undefined
+                }
+                return item.value
+            }
+        };
+        window.utils = {
+            saveToLocal: saveToLocal,
+            getCSS: (url, id = false) => new Promise((resolve, reject) => {
+              const link = document.createElement('link')
+              link.rel = 'stylesheet'
+              link.href = url
+              if (id) link.id = id
+              link.onerror = reject
+              link.onload = link.onreadystatechange = function() {
+                const loadState = this.readyState
+                if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+                link.onload = link.onreadystatechange = null
+                resolve()
+              }
+              document.head.appendChild(link)
+            }),
+            getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+              const script = document.createElement('script')
+              script.src = url
+              script.async = true
+              script.onerror = reject
+              script.onload = script.onreadystatechange = function() {
+                const loadState = this.readyState
+                if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+                script.onload = script.onreadystatechange = null
+                resolve()
+              }
+
+              Object.keys(attr).forEach(key => {
+                script.setAttribute(key, attr[key])
+              })
+
+              document.head.appendChild(script)
+            }),
+            addGlobalFn: (key, fn, name = false, parent = window) => {
+                const globalFn = parent.globalFn || {}
+                const keyObj = globalFn[key] || {}
+
+                if (name && keyObj[name]) return
+
+                name = name || Object.keys(keyObj).length
+                keyObj[name] = fn
+                globalFn[key] = keyObj
+                parent.globalFn = globalFn
+            },
+            addEventListenerPjax: (ele, event, fn, option = false) => {
+              ele.addEventListener(event, fn, option)
+              utils.addGlobalFn('pjax', () => {
+                  ele.removeEventListener(event, fn, option)
+              })
+          },
+        }
+    })()</script><!-- global head--><script>const GLOBAL_CONFIG = {
+    root: '/',
+    algolia: undefined,
+    localsearch: {"preload":true,"path":"/search.xml"},
+    runtime: '2022-04-20 00:00:00',
+    lazyload: {
+        enable: false,
+        error: '/img/error_load.avif'
+    },
+    copyright: {"limit":500,"author":"作者: FENG","link":"链接: ","source":"来源: 知行","info":"著作权归作者所有。 商业转载请联系作者获得授权，非商业转载请注明出处。"},
+    highlight: {"limit":200,"expand":true,"copy":true,"syntax":"highlight.js"},
+    randomlink: false,
+    lang: {"theme":{"dark":"已切换至深色模式","light":"已切换至浅色模式"},"copy":{"success":"复制成功","error":"复制失败"},"backtop":"返回顶部","time":{"day":"天前","hour":"小时前","just":"刚刚","min":"分钟前","month":"个月前"},"day":" 天","f12":"开发者模式已打开，请遵循GPL协议。","totalk":"无需删除空行，直接输入评论即可","search":{"empty":"找不到你查询的内容：${query}","hit":"找到 ${hits} 条结果，用时 ${time} 毫秒","placeholder":"输入关键词快速查找","count":"共 <b>${count}</b> 条结果。"}},
+    aside: {
+        sayhello: {
+            morning: "✨ Good morning. It's a new day",
+            noon: "It's time for a midday break",
+            afternoon: "Tea time. 🍵",
+            night: "early bedtime",
+            goodnight: "Good night 😴",
+        },
+        sayhello2: [],
+        sayhello3: {
+            prefix: '好久不见，',
+            back: '欢迎再次回来，',
+        },
+    },
+    covercolor: {
+        enable: true
+    },
+    comment: false,
+    lightbox: 'null',
+    post_ai: false,
+    right_menu: {"mode":{"dark":"深色模式","light":"浅色模式"},"img_error":"此图片无法复制与下载"},
+    lure: false,
+    expire: false,
+};</script><!-- page-config head--><script id="config-diff">var PAGE_CONFIG = {
+    is_post: true,
+    is_page: false,
+    is_home: false,
+    page: '',
+    toc: true,
+    comment: true,
+    ai_text: false
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body id="body"><!-- universe--><canvas id="universe"></canvas><!-- background img--><!-- loading--><div id="loading-box" onclick="preloader.endLoading();" style="zoom:1"><div class="loading-bg"><img class="loading-img nolazyload" src="https://minio.kl.do/picture/images/avatar.png" alt="loading image"></div></div><script>const preloader = {
+    isLoaded: false,
+    endLoading: () => {
+        if (!preloader.isLoaded) {
+            document.getElementById('loading-box').classList.add('loaded');
+            preloader.isLoaded = true;
+            preloader.togglePaceDone();
+        }
+    },
+    initLoading: () => {
+        document.getElementById('loading-box').classList.remove('loaded');
+        preloader.isLoaded = false;
+        preloader.togglePaceDone();
+    },
+    togglePaceDone: () => {
+        document.getElementById('body').className = preloader.isLoaded ? 'pace-done' : '';
+    }
+}
+
+window.addEventListener('load', () => {
+    preloader.endLoading();
+});
+
+window.addEventListener('pjax:send', () => {
+    preloader.initLoading();
+});
+
+document.addEventListener('pjax:complete', () => {
+    preloader.endLoading();
+});
+
+setTimeout(() => {
+    preloader.endLoading();
+}, 5000);</script><!-- console--><div id="console"><div class="close-btn" onclick="sco.hideConsole()"><i class="solitude fa-solid fa-xmark"></i></div><div class="console-card-group"><div class="console-card-group-left"><div class="console-card" id="card-newest-comments" onclick="sco.hideConsole()"><div class="card-content"><div class="author-content-item-tips">互动</div><div class="author-content-item-title">最新评论</div></div><div class="console_recentcomments"><script pjax>(async () => {
+    document.querySelector('.console-card .console_recentcomments').textContent = `加载中...`
+    const emojiReg = /<img class="tk-owo-emotion" [^>]+>/g
+    let cache = utils.saveToLocal.get('twikoo-recent-comments-console')
+    if (cache) {
+        setHtml(document.querySelector('.console-card .console_recentcomments'), cache)
+        return
+    }
+    let ls = []
+
+    await fetch('http://dev.kl.do:23233/', {
+        method: "POST",
+        body: JSON.stringify({
+            "event": "GET_RECENT_COMMENTS",
+            "includeReply": true,
+            "pageSize": 6
+        }),
+        headers: {'Content-Type': 'application/json'}
+    }).then(res => res.json()).then(async ({data}) => {
+        for (const i of data) {
+            if (i.avatar === undefined) i.avatar = '/avatar/d615d5793929e8c7d70eab5f00f7f5f1?d=mp'
+            let title = ''
+            if (i.url) {
+                await fetch(i.url).then(res => res.text()).then(html => {
+                    const parser = new DOMParser()
+                    const doc = parser.parseFromString(html, 'text/html')
+                    title = doc.querySelector('title').innerText
+                }).catch(() => {
+                    title = i.url
+                })
+            }
+            if (title.indexOf('|') > 0) {
+                title = title.split('|')[0]
+            }
+            ls.push({
+                avatar: i.avatar,
+                nick: i.nick,
+                title: title,
+                content: i.comment,
+                url: i.url + '#' + i.id,
+                time: i.created
+            })
+        }
+        setHtml(document.querySelector('.console-card .console_recentcomments'), ls)
+        utils.saveToLocal.set('twikoo-recent-comments-console', ls, 0.2)
+    });
+
+    function setHtml(el, data) {
+        el.innerHTML = data.map(i => `
+            <div class="comment-card" title="${i.title}" onclick="pjax.loadUrl('${i.url}')">
+                <div class="comment-info">
+                    <img src="${i.avatar}" class="nolazyload" alt="${i.nick}">
+                    <div>
+                        <span class="comment-user">${i.nick}</span>
+                    </div>
+                    <time class="comment-time" datetime="${new Date(i.time)}"></time>
+                </div>
+                <div class="comment-content">${formatContent(i.content)}</div>
+                <div class="comment-title">
+                <i class="solitude fa-solid fa-comment"></i>
+                ${i.title}</div>
+            </div>
+        `).join('')
+        if (typeof sco !== 'undefined') sco.changeTimeFormat(document.querySelectorAll('.comment-time'))
+        else {
+            document.addEventListener('pjax:complete', () => sco.changeTimeFormat(document.querySelectorAll('.comment-time')))
+            document.addEventListener('DOMContentLoaded', () => sco.changeTimeFormat(document.querySelectorAll('.comment-time')))
+        }
+    }
+
+    function formatContent(content) {
+        content = content.replace(emojiReg, '表情')
+        content = content.replace(/<\/*br>|[\s\uFEFF\xA0]+/g, '');
+        content = content.replace(/<img.*?>/g, '[图片]');
+        content = content.replace(/<a.*?>.*?<\/a>/g, '[链接]');
+        content = content.replace(/<pre.*?>.*?<\/pre>/g, '[代码]');
+        content = content.replace(/<.*?>/g, '');
+        return content
+    }
+})()</script></div></div></div><div class="console-card-group-right"><div class="console-card tags" onclick="sco.hideConsole()"><div class="card-content"><div class="author-content-item-tips">标签</div><div class="author-content-item-title">寻找感兴趣的领域</div></div><div class="card-tag-cloud"><a href="/tags/Docker/">Docker<sup>5</sup></a><a href="/tags/Maven/">Maven<sup>1</sup></a><a href="/tags/Minio/">Minio<sup>1</sup></a><a href="/tags/%E6%95%99%E7%A8%8B/">教程<sup>3</sup></a><a href="/tags/ArchLinux/">ArchLinux<sup>6</sup></a><a href="/tags/Linux/">Linux<sup>10</sup></a><a href="/tags/Shell/">Shell<sup>3</sup></a><a href="/tags/gRPC/">gRPC<sup>1</sup></a><a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务<sup>5</sup></a><a href="/tags/Java/">Java<sup>2</sup></a><a href="/tags/PHP/">PHP<sup>1</sup></a><a href="/tags/Golang/">Golang<sup>5</sup></a><a href="/tags/%E5%B0%8F%E5%B7%A5%E5%85%B7/">小工具<sup>2</sup></a><a href="/tags/%E7%AE%97%E6%B3%95/">算法<sup>2</sup></a><a href="/tags/Jwt/">Jwt<sup>2</sup></a><a href="/tags/Debian/">Debian<sup>1</sup></a><a href="/tags/CentOS/">CentOS<sup>1</sup></a><a href="/tags/IntelliJ/">IntelliJ<sup>1</sup></a><a href="/tags/%E7%83%AD%E9%97%A8/">热门<sup>2</sup></a><a href="/tags/AI/">AI<sup>2</sup></a><a href="/tags/ChatGPT/">ChatGPT<sup>1</sup></a><a href="/tags/Bot/">Bot<sup>1</sup></a><a href="/tags/Copilot/">Copilot<sup>1</sup></a><a href="/tags/Github/">Github<sup>2</sup></a><a href="/tags/HTTP/">HTTP<sup>1</sup></a><a href="/tags/PicGO/">PicGO<sup>1</sup></a></div></div><div class="console-card history" onclick="sco.hideConsole()"><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2021/"><span class="card-archive-list-date">2021</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">9</span><span class="card-archive-list-count-unit">篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/"><span class="card-archive-list-date">2022</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">14</span><span class="card-archive-list-count-unit">篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2023/"><span class="card-archive-list-date">2023</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">5</span><span class="card-archive-list-count-unit">篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2024/"><span class="card-archive-list-date">2024</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">6</span><span class="card-archive-list-count-unit">篇</span></div></a></li></ul></div></div></div><div class="button-group"><div class="console-btn-item"><span class="darkmode_switchbutton" onclick="sco.switchDarkMode()" title="昼夜切换"><i class="solitude fa-solid fa-circle-half-stroke"></i></span></div><div class="console-btn-item" id="consoleHideAside"><span class="asideSwitch" onclick="sco.switchHideAside()" title="边栏显示控制"><i class="solitude fa-solid fa-mattress-pillow"></i></span></div></div><div class="console-mask" onclick="sco.hideConsole()"></div></div><!-- sidebar--><div id="sidebar" style="zoom: 1;"><div id="menu-mask" style="display: none;"></div><div id="sidebar-menus"><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">34</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">26</div></a></div></div></div><span class="sidebar-menu-item-title">功能</span><div class="sidebar-menu-item"><span class="darkmode_switchbutton menu-child" onclick="sco.switchDarkMode()"><i class="solitude fa-solid fa-circle-half-stroke"></i><span>显示模式</span></span></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">Project</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener external nofollow noreferrer" href="https://kl.do" title="个人主页"><img class="nolazyload back-menu-item-icon" src="https://minio.kl.do/picture/images/xiaohei/2.png" alt="个人主页"><span class="back-menu-item-text">个人主页</span></a><a class="back-menu-item" target="_blank" rel="noopener external nofollow noreferrer" href="https://nav.kl.do" title="起始页"><img class="nolazyload back-menu-item-icon" src="https://minio.kl.do/picture/images/xiaohei/4.png" alt="起始页"><span class="back-menu-item-text">起始页</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">Service</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener external nofollow noreferrer" href="https://api.kl.do" title="ChatAPI"><img class="nolazyload back-menu-item-icon" src="https://minio.kl.do/picture/images/xiaohei/11.png" alt="ChatAPI"><span class="back-menu-item-text">ChatAPI</span></a><a class="back-menu-item" target="_blank" rel="noopener external nofollow noreferrer" href="https://chat.kl.do" title="LobeChat"><img class="nolazyload back-menu-item-icon" src="https://minio.kl.do/picture/images/xiaohei/3.png" alt="LobeChat"><span class="back-menu-item-text">LobeChat</span></a><a class="back-menu-item" target="_blank" rel="noopener external nofollow noreferrer" href="https://bitwarden.kl.do" title="Bitwarden"><img class="nolazyload back-menu-item-icon" src="https://minio.kl.do/picture/images/xiaohei/12.png" alt="Bitwarden"><span class="back-menu-item-text">Bitwarden</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><span>首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><span>文库</span></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="solitude  fas fa-folder-closed"></i><span>文章列表</span></a></li><li><a class="site-page child" href="/categories/"><i class="solitude  fas fa-clone"></i><span>全部分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="solitude  fas fa-tags"></i><span>全部标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/message/"><span>留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><span>关于</span></a></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-widget card-tags card-archives card-webinfo card-allinfo"><div class="card-tag-cloud"><a href="/tags/Docker/">Docker<sup>5</sup></a><a href="/tags/Maven/">Maven<sup>1</sup></a><a href="/tags/Minio/">Minio<sup>1</sup></a><a href="/tags/%E6%95%99%E7%A8%8B/">教程<sup>3</sup></a><a href="/tags/ArchLinux/">ArchLinux<sup>6</sup></a><a href="/tags/Linux/">Linux<sup>10</sup></a><a href="/tags/Shell/">Shell<sup>3</sup></a><a href="/tags/gRPC/">gRPC<sup>1</sup></a><a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务<sup>5</sup></a><a href="/tags/Java/">Java<sup>2</sup></a><a href="/tags/PHP/">PHP<sup>1</sup></a><a href="/tags/Golang/">Golang<sup>5</sup></a><a href="/tags/%E5%B0%8F%E5%B7%A5%E5%85%B7/">小工具<sup>2</sup></a><a href="/tags/%E7%AE%97%E6%B3%95/">算法<sup>2</sup></a><a href="/tags/Jwt/">Jwt<sup>2</sup></a><a href="/tags/Debian/">Debian<sup>1</sup></a><a href="/tags/CentOS/">CentOS<sup>1</sup></a><a href="/tags/IntelliJ/">IntelliJ<sup>1</sup></a><a href="/tags/%E7%83%AD%E9%97%A8/">热门<sup>2</sup></a><a href="/tags/AI/">AI<sup>2</sup></a><a href="/tags/ChatGPT/">ChatGPT<sup>1</sup></a><a href="/tags/Bot/">Bot<sup>1</sup></a><a href="/tags/Copilot/">Copilot<sup>1</sup></a><a href="/tags/Github/">Github<sup>2</sup></a><a href="/tags/HTTP/">HTTP<sup>1</sup></a><a href="/tags/PicGO/">PicGO<sup>1</sup></a></div></div></div></div><!-- keyboard--><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav class="show" id="nav"><div id="nav-group"><div id="blog_name"><div class="back-home-button" tabindex="-1"><i class="back-home-button-icon solitude fab fa-squarespace"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">Project</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener external nofollow noreferrer" href="https://kl.do" title="个人主页"><img class="nolazyload back-menu-item-icon" src="https://minio.kl.do/picture/images/xiaohei/2.png" alt="个人主页"><span class="back-menu-item-text">个人主页</span></a><a class="back-menu-item" target="_blank" rel="noopener external nofollow noreferrer" href="https://nav.kl.do" title="起始页"><img class="nolazyload back-menu-item-icon" src="https://minio.kl.do/picture/images/xiaohei/4.png" alt="起始页"><span class="back-menu-item-text">起始页</span></a></div></div><div class="back-menu-list-group"><div class="back-menu-list-title">Service</div><div class="back-menu-list"><a class="back-menu-item" target="_blank" rel="noopener external nofollow noreferrer" href="https://api.kl.do" title="ChatAPI"><img class="nolazyload back-menu-item-icon" src="https://minio.kl.do/picture/images/xiaohei/11.png" alt="ChatAPI"><span class="back-menu-item-text">ChatAPI</span></a><a class="back-menu-item" target="_blank" rel="noopener external nofollow noreferrer" href="https://chat.kl.do" title="LobeChat"><img class="nolazyload back-menu-item-icon" src="https://minio.kl.do/picture/images/xiaohei/3.png" alt="LobeChat"><span class="back-menu-item-text">LobeChat</span></a><a class="back-menu-item" target="_blank" rel="noopener external nofollow noreferrer" href="https://bitwarden.kl.do" title="Bitwarden"><img class="nolazyload back-menu-item-icon" src="https://minio.kl.do/picture/images/xiaohei/12.png" alt="Bitwarden"><span class="back-menu-item-text">Bitwarden</span></a></div></div></div></div><a id="site-name" href="/" title="返回博客主页"><span class="title">FENG</span><i class="solitude fa-solid fa-home"></i></a></div><div id="page-name-mask"><div id="page-name"><a id="page-name-text" onclick="sco.toTop()">Docker 搭建 Minio2024 + picgo + typora 图床</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><span>首页</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><span>文库</span></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="solitude  fas fa-folder-closed"></i><span>文章列表</span></a></li><li><a class="site-page child" href="/categories/"><i class="solitude  fas fa-clone"></i><span>全部分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="solitude  fas fa-tags"></i><span>全部标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/message/"><span>留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><span>关于</span></a></div></div></div><div id="nav-left"></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="随机一篇文章" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="solitude fa-solid fa-dice-d6"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" rel="external nofollow noreferrer" title="搜索"><i class="solitude fa-solid fa-magnifying-glass"></i></a></div><div class="nav-button" id="nav-console"><a class="console_switchbutton" onclick="sco.showConsole()" title="中控台" href="javascript:void(0);" rel="external nofollow noreferrer"><label><i class="left"></i><i class="center"></i><i class="right"></i></label></a></div><div class="nav-button" id="nav-totop" onclick="sco.toTop()"><a class="totopbtn"><i class="solitude fa-solid fa-arrow-up"></i><span id="percent">0</span></a></div><div id="toggle-menu"><a class="site-page"><i class="solitude fa-solid fa-bars"></i></a></div></div></div></nav><div class="coverdiv" id="coverdiv"><img class="nolazyload" id="post-cover" src="https://minio.kl.do/picture/images/typora/image-20220403164604699.png" alt="Docker 搭建 Minio2024 + picgo + typora 图床"></div><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original" title="该文章为原创文章，注意版权协议">原创</a><span class="post-meta-categories"><a class="post-meta-categories" href="/categories/Container/">Container</a></span><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Docker/"><span class="tags-name tags-punctuation"><i class="solitude fa-solid fa-hashtag"></i>Docker</span></a><a class="post-meta__tags" href="/tags/Minio/"><span class="tags-name tags-punctuation"><i class="solitude fa-solid fa-hashtag"></i>Minio</span></a><a class="post-meta__tags" href="/tags/%E6%95%99%E7%A8%8B/"><span class="tags-name tags-punctuation"><i class="solitude fa-solid fa-hashtag"></i>教程</span></a></div></div></div></div><h1 class="post-title">Docker 搭建 Minio2024 + picgo + typora 图床</h1><div id="post-meta"><div class="meta-secondline"><span class="post-meta-date" title="最后更新于 2024-08-23 12:07:34"><i class="post-meta-icon solitude fa-solid fa-arrow-rotate-right"></i><time datetime="2024-08-23T04:07:34.207Z">2024-08-23T04:07:34.207Z</time></span><span class="post-meta-wordcount"><i class="post-meta-icon solitude fa-solid fa-file-word" title="文章字数"></i><span class="word-count">1.7k</span><span class="post-meta-separator"></span><i class="post-meta-icon solitude fa-solid fa-clock" title="阅读耗时"></i><span>7 min</span></span><a class="post-meta-pv" href="/posts/4289372700.html" title="文章热度"><i class="post-meta-icon solitude fa-solid fa-fire-flame-curved"></i><span id="busuanzi_value_page_pv"><i class="solitude fa-solid fa-spinner"></i></span></a></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><blockquote>
+<p>中文文档 <a target="_blank" rel="noopener external nofollow noreferrer" href="http://docs.minio.org.cn/docs/">http://docs.minio.org.cn/docs/</a></p>
+</blockquote>
+<h1 id="Minio-Docker-单节点单磁盘"><a href="#Minio-Docker-单节点单磁盘" class="headerlink" title="Minio Docker 单节点单磁盘"></a>Minio Docker 单节点单磁盘</h1><blockquote>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://docs.min.io/docs/minio-docker-quickstart-guide.html">https://docs.min.io/docs/minio-docker-quickstart-guide.html</a></p>
+<p>单节点部署又分为单磁盘、多磁盘部署，这里不推荐使用单磁盘，因为 minio 的纠删码 &gt;  算法要求至少 4 块磁盘，否则应用不了纠删码，保证不了数据安全以及高可用。</p>
+</blockquote>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://min.io/docs/minio/linux/operations/install-deploy-manage/migrate-fs-gateway.html">https://min.io/docs/minio/linux/operations/install-deploy-manage/migrate-fs-gateway.html</a></p>
+<p>从 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/minio/minio/releases/tag/RELEASE.2022-10-29T06-21-33Z">RELEASE.2022-10-29T06-21-33Z</a> 开始，MinIO 网关和相关的文件系统模式代码已被删除。仍在使用独立或文件系统 MinIO 模式升级到 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/minio/minio/releases/tag/RELEASE.2022-10-29T06-21-33Z">RELEASE.2022-10-29T06-21-33Z</a> 或更高版本的部署在尝试启动 MinIO 时收到错误。</p>
+<p>错误信息为:</p>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ERROR Unable to use the drive /data: Drive /data: found backend type fs, expected xl or xl-single - to migrate to a supported backend visit https://min.io/docs/minio/linux/operations/install-deploy-manage/migrate-fs-gateway.html: Invalid arguments specified</span><br></pre></td></tr></tbody></table></figure>
+
+<p><strong>注意:</strong> <code>RELEASE.2022-10-24T18-35-07Z</code> 之前的版本升级需要迁移数据</p>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">wget http://dl.minio.org.cn/client/mc/release/linux-amd64/mc</span><br><span class="line"></span><br><span class="line">chmod +x ./mc</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置minio2019的<span class="built_in">alias</span></span></span><br><span class="line">./mc alias set minio2019 http://localhost:9000 likfees UU65D4ec62JusfyW9y</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置minio2023的<span class="built_in">alias</span></span></span><br><span class="line">./mc alias set minio2023 http://localhost:19000 justfongs UU65D4ec62JusfyW9y</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">全量迁移</span></span><br><span class="line">./mc mirror minio2019 minio2023</span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p ~/minio/data</span><br></pre></td></tr></tbody></table></figure>
+
+<blockquote>
+<p>-v /data/minio/data:/data \   持久化数据文件到本地 <code>/data/minio/data</code><br>-v /data/minio/config:/root/.minio \  映射配置目录到本地 <code>/data/minio/config</code>, 配置 HTTPS 需要<br>MINIO_ROOT_USER = 用户名 /accessKey<br>MINIO_ROOT_PASSWORD = 密码 /secretKey<br>MINIO_SERVER_URL=API 域名，通过 Web 管理域名登陆创建文件分享时会调用此 API 域名<br>–console-address ‘0.0.0.0:19001’: Minio 控制后台地址<br>–address ‘:19000’:Minio 的 API 地址端口</p>
+</blockquote>
+<p><strong>MINIO_DOMAIN</strong> 配置 MinIO 来支持自定义域名访问对象</p>
+<ul>
+<li>确保你的 SSL 证书支持 *.minio.<your-domain>。你可能需要一个通配符 SSL 证书。</your-domain></li>
+<li>在 DNS 设置中，确保 *.minio.<your-domain> 指向你的服务器 IP。</your-domain></li>
+<li>MinIO 的虚拟主机样式 URL 要求存储桶名称必须是域名的第一部分。例如，picture.<your-domain> 对应的是 “picture” 存储桶。</your-domain></li>
+</ul>
+<p>** HTTP 方式，HTTPS 请看 HTTPS 章节，我尝试使用 nginx 进行反向代理配置 HTTPS 失败了。。。 **</p>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">  --name minio \</span><br><span class="line">  -p 19000:19000 \</span><br><span class="line">  -p 19001:19001 \</span><br><span class="line">  -v /data/minio:/data \</span><br><span class="line">  -v /data/minio/config:/root/.minio \</span><br><span class="line">  -e MINIO_ROOT_USER=&lt;username&gt; \</span><br><span class="line">  -e MINIO_ROOT_PASSWORD=&lt;password&gt; \</span><br><span class="line">  -e MINIO_SERVER_URL=http://127.0.0.1:19000 \</span><br><span class="line">  -e MINIO_BROWSER_REDIRECT_URL=http://&lt;your-domain&gt;:19001 \</span><br><span class="line">  -e MINIO_DOMAIN=&lt;your-domain&gt; \</span><br><span class="line">  -e TZ=Asia/Shanghai \</span><br><span class="line">  --restart always \</span><br><span class="line">  minio/minio:RELEASE.2024-07-16T23-46-41Z \</span><br><span class="line">  server /data --address ":19000" --console-address ":19001"</span><br></pre></td></tr></tbody></table></figure>
+
+<ol start="2">
+<li><code>docker ps -a</code> 查看容器是否正常启动</li>
+</ol>
+<p>启动完成后 访问  <a target="_blank" rel="noopener external nofollow noreferrer" href="http://ip:19000/">http://ip:19000</a>  即可进入 Minio</p>
+<p><img src="https://minio.kl.do/picture/blog/100bf644d6ee557037794b1bca921d93.png" alt="https://minio.kl.do/picture/blog/100bf644d6ee557037794b1bca921d93.png"></p>
+<h1 id="Docker-compose-搭建-HTTPS-节点"><a href="#Docker-compose-搭建-HTTPS-节点" class="headerlink" title="Docker-compose 搭建 HTTPS 节点"></a>Docker-compose 搭建 HTTPS 节点</h1><blockquote>
+<p>条件为安装 docker-compose</p>
+</blockquote>
+<h2 id="docker-compose-yaml"><a href="#docker-compose-yaml" class="headerlink" title="docker-compose.yaml"></a>docker-compose.yaml</h2><figure class="highlight yaml"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">minio:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">minio/minio:RELEASE.2024-07-16T23-46-41Z</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">minio</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">"19000:19000"</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">"19001:19001"</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">/data/minio:/data</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">/data/minio/config:/root/.minio</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">MINIO_ROOT_USER=&lt;username&gt;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">MINIO_ROOT_PASSWORD=&lt;password&gt;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">MINIO_SERVER_URL=https://127.0.0.1:19000</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">MINIO_BROWSER_REDIRECT_URL=https://&lt;your-domain&gt;:19000</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">MINIO_DOMAIN=&lt;your-domain&gt;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">TZ=Asia/Shanghai</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">server</span> <span class="string">/data</span> <span class="string">--address</span> <span class="string">":19000"</span> <span class="string">--console-address</span> <span class="string">":19001"</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">always</span></span><br></pre></td></tr></tbody></table></figure>
+
+<ol start="2">
+<li>修改 docker-compose.yaml 配置</li>
+</ol>
+<blockquote>
+<p>MINIO_ROOT_USER = 用户名 /accessKey<br>MINIO_ROOT_PASSWORD = 密码 /secretKey<br>MINIO_SERVER_URL=API 域名<br>MINIO_BROWSER_REDIRECT_URL = 控制台访问地址</p>
+</blockquote>
+<p><strong>MINIO_DOMAIN</strong> 配置 MinIO 来支持自定义域名访问对象</p>
+<ul>
+<li>确保你的 SSL 证书支持 *.minio.<your-domain>。你可能需要一个通配符 SSL 证书。</your-domain></li>
+<li>在 DNS 设置中，确保 *.minio.<your-domain> 指向你的服务器 IP。</your-domain></li>
+<li>MinIO 的虚拟主机样式 URL 要求存储桶名称必须是域名的第一部分。例如，picture.<your-domain> 对应的是 “picture” 存储桶。</your-domain></li>
+</ul>
+<ol start="3">
+<li>执行安装 </li>
+</ol>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker-compose pull</span><br><span class="line">docker-compose up</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="配置-HTTPS-证书"><a href="#配置-HTTPS-证书" class="headerlink" title="配置 HTTPS 证书"></a>配置 HTTPS 证书</h2><blockquote>
+<p>本教程使用宝塔面板进行配置，你也可以使用 Let’s Encrypt 申请免费证书</p>
+</blockquote>
+<ol>
+<li>创建 minio 站点</li>
+<li>添加主域名和桶泛域名</li>
+</ol>
+<p><img src="https://minio.kl.do/picture/blog/dd52ad0deb91667112e56a510bfce0e8.png" alt="https://minio.kl.do/picture/blog/dd52ad0deb91667112e56a510bfce0e8.png"></p>
+<ol start="3">
+<li><p>申请 Let’s Encrypt</p>
+<p><img src="https://minio.kl.do/picture/blog/69a4e21b73d3a8843a9725b7b55e42ca.png" alt="https://minio.kl.do/picture/blog/69a4e21b73d3a8843a9725b7b55e42ca.png"></p>
+<ol start="4">
+<li><p>将证书部署到 minio</p>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd /data/minio/config/certs</span><br><span class="line">touch private.key</span><br><span class="line">touch public.crt</span><br></pre></td></tr></tbody></table></figure>
+
+<p>分别将申请证书的 <strong>密钥 (KEY) <strong>和</strong>证书 (PEM 格式) <strong>填入</strong> private.key</strong> 和 <strong>public.crt</strong></p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose restart</span><br></pre></td></tr></tbody></table></figure>
+
+<ol start="5">
+<li><p>访问 MINIO</p>
+<p>https://<your-domain></your-domain></p>
+<p><img src="https://minio.kl.do/picture/blog/100bf644d6ee557037794b1bca921d93.png" alt="https://minio.kl.do/picture/blog/100bf644d6ee557037794b1bca921d93.png"></p>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h1 id="新建-Bucket-并设为公共访问"><a href="#新建-Bucket-并设为公共访问" class="headerlink" title="新建 Bucket 并设为公共访问"></a>新建 Bucket 并设为公共访问</h1><p>PS: 如果部署的是单节点单磁盘 Minio 提示以下内容，并不影响使用但会丢失<strong>高可用</strong>特性。如果需要可以使用 docker-compose  安装分布式节点</p>
+<p>默认情况下新建的 Buckets 是私有权限，文件也可以直接分享带有效期的临时链接。如果需要当图床使用，可以将 Buckets 修改为公开权限，就可以直接用 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://kl.do/test/abc.jpg%E5%BD%93%E5%9B%BE%E5%BA%8A%E4%BD%BF%E7%94%A8">https://kl.do/test/abc.jpg 当图床使用</a>.</p>
+<p><img src="https://minio.kl.do/picture/images/typora/image-20220330012912194.png" alt="image-20220330012912194"></p>
+<p><strong>设为公共访问 Public</strong></p>
+<p><img src="https://minio.kl.do/picture/images/typora/image-20220330013131001.png" alt="image-20220330013131001"></p>
+<h1 id="Nginx-反向代理"><a href="#Nginx-反向代理" class="headerlink" title="Nginx 反向代理"></a>Nginx 反向代理</h1><p>官方文档 <a target="_blank" rel="noopener external nofollow noreferrer" href="http://docs.minio.org.cn/docs/master/setup-nginx-proxy-with-minio">http://docs.minio.org.cn/docs/master/setup-nginx-proxy-with-minio</a></p>
+<h2 id="标准的Root配置"><a href="#标准的Root配置" class="headerlink" title="标准的Root配置"></a>标准的 Root 配置</h2><p><strong>在文件 <code>/etc/nginx/sites-enabled</code> 中添加下面的内容，同时删除同一个目录中现有的 <code>default</code> 文件。</strong></p>
+<figure class="highlight json"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">server <span class="punctuation">{</span></span><br><span class="line"> listen <span class="number">80</span>;</span><br><span class="line"> server_name example.com;</span><br><span class="line"> location / <span class="punctuation">{</span></span><br><span class="line">   proxy_set_header Host $http_host;</span><br><span class="line">   proxy_pass http<span class="punctuation">:</span><span class="comment">//127.0.0.1:19000;</span></span><br><span class="line"> <span class="punctuation">}</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="非Root配置"><a href="#非Root配置" class="headerlink" title="非Root配置"></a>非 Root 配置</h2><p>注意:</p>
+<ul>
+<li>用你自己的服务名替换 <code>http://localhost:9000</code>。</li>
+<li>用所需的路径替换 <code>files</code>。这不能是 <code>~^/minio</code>, 因为 <code>minio</code> 是 minio 中的保留字。</li>
+<li>所使用的路径 (在本例中为 <code>files</code>) 按照惯例，应设置为 minio 所使用的存储桶的名称。</li>
+<li>可以通过添加更多类似于上面定义的 location 定义来访问其他存储桶。</li>
+</ul>
+<figure class="highlight json"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">location ~^/files <span class="punctuation">{</span></span><br><span class="line">   proxy_buffering off;</span><br><span class="line">   proxy_set_header Host $http_host;</span><br><span class="line">   proxy_pass http<span class="punctuation">:</span><span class="comment">//127.0.0.1:19000;</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="宝塔面板"><a href="#宝塔面板" class="headerlink" title="宝塔面板"></a>宝塔面板</h2><p><strong>与非 Root 配置一样的</strong></p>
+<p><img src="https://minio.kl.do/picture/blog/96b5c64d7a06512ffc3e558d4e5dca2d.png" alt="https://minio.kl.do/picture/blog/96b5c64d7a06512ffc3e558d4e5dca2d.png"></p>
+<p>保存即可使用，后点击修改，将以下内容粘贴</p>
+<figure class="highlight json"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">location / <span class="punctuation">{</span></span><br><span class="line">    proxy_set_header Host $http_host;</span><br><span class="line">    proxy_set_header X-Real-IP $remote_addr;</span><br><span class="line">    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">    proxy_set_header X-Forwarded-Proto $scheme;</span><br><span class="line">    proxy_set_header Origin $http_origin;</span><br><span class="line">    proxy_set_header Access-Control-Allow-Origin *;</span><br><span class="line"></span><br><span class="line">    proxy_connect_timeout <span class="number">300</span>;</span><br><span class="line">    proxy_http_version <span class="number">1.1</span>;</span><br><span class="line">    proxy_set_header Connection <span class="string">""</span>;</span><br><span class="line">    chunked_transfer_encoding off;</span><br><span class="line"></span><br><span class="line">    proxy_pass https<span class="punctuation">:</span><span class="comment">//127.0.0.1:19000;</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li><a target="_blank" rel="noopener external nofollow noreferrer" href="https://minio.kl.do/picture/images/avatar-y.png%EF%BC%9A">https://minio.kl.do/picture/images/avatar-y.png：</a> Minio 平台图片访问地址示例 </li>
+<li><a target="_blank" rel="noopener external nofollow noreferrer" href="https://picture.minio.kl.do/images/avatar.png%EF%BC%9A">https://picture.minio.kl.do/images/avatar.png：</a> 使用自定义域名访问 Minio 平台图片示例</li>
+</ul>
+<h1 id="PicGO"><a href="#PicGO" class="headerlink" title="PicGO"></a>PicGO</h1><h2 id="PicGo-App"><a href="#PicGo-App" class="headerlink" title="PicGo App"></a>PicGo App</h2><ol>
+<li>下载 PicGo</li>
+</ol>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yay -S picgo-appimage</span><br></pre></td></tr></tbody></table></figure>
+
+<ol start="2">
+<li>安装 minio 插件<br>可以在 picgo 中安装 </li>
+</ol>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/Herbertzz/picgo-plugin-minio</span><br></pre></td></tr></tbody></table></figure>
+
+<ol start="3">
+<li>设置图床参数</li>
+</ol>
+<p>测试上传即可</p>
+<h2 id="PicGO-Core"><a href="#PicGO-Core" class="headerlink" title="PicGO-Core"></a>PicGO-Core</h2><p><img src="https://minio.kl.do/picture/images/typora/image-20230209092349035.png" alt="image-20230209092349035"></p>
+<p>安装 minio 插件 </p>
+<p>picgo 默认路径 <code>C:\Users\&lt;用户名&gt;\AppData\Roaming\Typora\picgo\win64\picgo.exe</code></p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\&lt;用户名&gt;\AppData\Roaming\Typora\picgo\win64\picgo.exe install minio</span><br><span class="line">C:\Users\&lt;用户名&gt;\AppData\Roaming\Typora\picgo\win64\picgo.exe use uploader</span><br></pre></td></tr></tbody></table></figure>
+
+
+<figure class="highlight json"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">{</span></span><br><span class="line">  <span class="attr">"picBed"</span><span class="punctuation">:</span> <span class="punctuation">{</span></span><br><span class="line">    <span class="attr">"uploader"</span><span class="punctuation">:</span> <span class="string">"minio"</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">"current"</span><span class="punctuation">:</span> <span class="string">"minio"</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">"minio"</span><span class="punctuation">:</span> <span class="punctuation">{</span></span><br><span class="line">      <span class="attr">"endPoint"</span><span class="punctuation">:</span> <span class="string">"minio.kl.do"</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">"port"</span><span class="punctuation">:</span> <span class="string">"19000"</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">"useSSL"</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">"accessKey"</span><span class="punctuation">:</span> <span class="string">"用户名"</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">"secretKey"</span><span class="punctuation">:</span> <span class="string">"密码"</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">"bucket"</span><span class="punctuation">:</span> <span class="string">"picture"</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">"sameNameFileProcessingMode"</span><span class="punctuation">:</span> <span class="string">"覆盖"</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">"baseDir"</span><span class="punctuation">:</span> <span class="string">"files"</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">"customDomain"</span><span class="punctuation">:</span> <span class="string">"https://minio.kl.do"</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">"isAutoArchive"</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span></span><br><span class="line">    <span class="punctuation">}</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">"transformer"</span><span class="punctuation">:</span> <span class="string">"path"</span></span><br><span class="line">  <span class="punctuation">}</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">"picgoPlugins"</span><span class="punctuation">:</span> <span class="punctuation">{</span></span><br><span class="line">    <span class="attr">"picgo-plugin-minio"</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">  <span class="punctuation">}</span></span><br><span class="line"><span class="punctuation">}</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="PicGo-Cli-推荐使用"><a href="#PicGo-Cli-推荐使用" class="headerlink" title="PicGo-Cli 推荐使用"></a>PicGo-Cli 推荐使用</h2><blockquote>
+<p>Linux 需要使用 Cli 工具，Windonws 则不需要</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo npm install -g picgo</span><br></pre></td></tr></tbody></table></figure>
+
+<ol>
+<li>设置图床信息 </li>
+</ol>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">picgo set uploader</span><br></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li>设定仓库名：按照【用户名 / 图床仓库名】的格式填写</li>
+<li>设定分支名:【 main 】 2021 年后 master 改为 main</li>
+<li> 设定 Token: 粘贴上述生成的【 Token 】</li>
+<li>指定存储路径：如【 images/ 】, 这样就会在仓库下创建一个名为 images 的文件夹，图片将会储存在此文件夹中</li>
+<li>设定自定义域名：它的的作用是，在图片上传后，PicGo 会按照【 自定义域名 + 上传的图片名 】的方式生成访问链接，放到粘贴板上，</li>
+</ul>
+<ol>
+<li>安装插件 </li>
+</ol>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">picgo install minio</span><br></pre></td></tr></tbody></table></figure>
+
+<ol start="2">
+<li>配置 minio 参数 </li>
+</ol>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">picgo set uploader</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="https://minio.kl.do/picture/images/typora/image-20220330020543381.png" alt="image-20220330020543381"></p>
+<p><img src="https://minio.kl.do/picture/images/typora/image-20220508112322393.png" alt="image-20220508112322393"></p>
+<ol start="3">
+<li>选择默认图床 </li>
+</ol>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">picgo use uploader</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="Typora"><a href="#Typora" class="headerlink" title="Typora"></a>Typora</h2><p><img src="https://minio.kl.do/picture/images/typora/image-20220330020916960.png" alt="image-20220330020916960"></p>
+</article><div class="post-copyright"><div class="post-copyright__author_group"><a class="post-copyright__author_img" href="/about/"><img class="post-copyright__author_img_front" src="https://minio.kl.do/picture/images/avatar.png"></a><div class="post-copyright__author_name">知行</div><div class="post-copyright__author_desc">行无限，路漫漫</div></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div id="quit-box" onclick="RemoveRewardMask()"></div><div class="post-reward"><div class="reward-button" title="赞赏作者" onclick="AddRewardMask()"><i class="solitude fa-solid fa-heart"></i>赞赏作者</div><div class="reward-main"><ul class="reward-all"><span class="reward-title">Thanks for your appreciation. / 感谢您的赞赏</span><ul class="reward-group"><li class="reward-item"><a target="_blank" rel="noopener external nofollow noreferrer" href="https://minio.kl.do/default/pay/alipay.png"><img class="post-qr-code-img nolazyload" src="https://minio.kl.do/default/pay/alipay.png" alt="支付宝" style="border-color: undefined"></a><div class="post-qr-code-desc">支付宝</div></li><li class="reward-item"><a target="_blank" rel="noopener external nofollow noreferrer" href="https://minio.kl.do/default/pay/wechat.png"><img class="post-qr-code-img nolazyload" src="https://minio.kl.do/default/pay/wechat.png" alt="微信" style="border-color: undefined"></a><div class="post-qr-code-desc">微信</div></li></ul><a class="reward-main-btn" href="/about/"><div class="reward-text">赞赏名单</div><div class="reward-dec">Because of your support, I realize the value of writing articles. / 由于您的支持，我才能够实现写作的价值。</div></a></ul></div></div><script>function RemoveRewardMask() {
+    let rewardMainElements = document.querySelectorAll(".reward-main");
+    let quitBoxElement = document.querySelector("#quit-box");
+
+    rewardMainElements.forEach(element => {
+        element.style.display = "none";
+    });
+
+    if (quitBoxElement) {
+        quitBoxElement.style.display = "none";
+    }
+}
+
+function AddRewardMask() {
+    let rewardMainElements = document.querySelectorAll(".reward-main");
+    let quitBoxElement = document.querySelector("#quit-box");
+
+    rewardMainElements.forEach(element => {
+        element.style.display = "flex";
+    });
+
+    if (quitBoxElement) {
+        quitBoxElement.style.display = "flex";
+    }
+}</script></div></div><div class="social-share"><a class="social-share-ico icon-qq" target="_blank" rel="noopener external nofollow noreferrer" href="https://connect.qq.com/widget/shareqq/index.html?url=https%3A%2F%2Fblog.kl.do%2Fposts%2F4289372700.html&amp;title=Docker%20%E6%90%AD%E5%BB%BA%20Minio2024%20%2B%20picgo%20%2B%20typora%20%E5%9B%BE%E5%BA%8A&amp;desc=undefined&amp;summary=undefined&amp;site=Docker%20%E6%90%AD%E5%BB%BA%20Minio2024%20%2B%20picgo%20%2B%20typora%20%E5%9B%BE%E5%BA%8A&amp;pics=https%3A%2F%2Fminio.kl.do%2Fpicture%2Fimages%2Ftypora%2Fimage-20220403164604699.png" title="分享到QQ"><i class="solitude fab fa-qq"></i></a><a class="social-share-ico icon-weibo" target="_blank" rel="noopener external nofollow noreferrer" href="http://service.weibo.com/share/share.php?url=https%3A%2F%2Fblog.kl.do%2Fposts%2F4289372700.html&amp;title=Docker%20%E6%90%AD%E5%BB%BA%20Minio2024%20%2B%20picgo%20%2B%20typora%20%E5%9B%BE%E5%BA%8A&amp;pic=https%3A%2F%2Fminio.kl.do%2Fpicture%2Fimages%2Ftypora%2Fimage-20220403164604699.png" title="分享到微博"><i class="solitude fab fa-weibo"></i></a><a class="social-share-ico icon-telegram" target="_blank" rel="noopener external nofollow noreferrer" href="https://t.me/share/url?url=https%3A%2F%2Fblog.kl.do%2Fposts%2F4289372700.html&amp;text=Docker%20%E6%90%AD%E5%BB%BA%20Minio2024%20%2B%20picgo%20%2B%20typora%20%E5%9B%BE%E5%BA%8A" title="分享到Telegram"><i class="solitude fab fa-telegram"></i></a><div class="social-share-ico icon-link" onclick="utils.copy(&quot;https://blog.kl.do/posts/4289372700.html&quot;)" title="复制文章链接"><i class="solitude fas fa-link"></i></div><div class="social-share-ico icon-qrcode" title="使用手机扫码阅读这篇文章"><i class="solitude fas fa-qrcode"></i><div class="share-main"><div class="share-main-all"><div id="qrcode"></div><div class="reward-dec">使用手机扫码阅读这篇文章</div></div></div><script pjax>typeof QRCode === 'function' && new QRCode(document.getElementById("qrcode"), 'https://blog.kl.do/posts/4289372700.html');
+window.addEventListener('DOMContentLoaded', () => {
+    new QRCode(document.getElementById("qrcode"), 'https://blog.kl.do/posts/4289372700.html');
+});
+</script></div></div><div class="post-copyright__notice"><span class="post-copyright-info">本文是原创文章，采用<a target="_blank" rel="noopener external nofollow noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0</a>协议，完整转载请注明来自<a href="/">知行</a></span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Docker/"><span class="tags-punctuation"><i class="solitude fa-solid fa-hashtag"></i>Docker<span class="tagsPageCount">5</span></span></a><a class="post-meta__tags" href="/tags/Minio/"><span class="tags-punctuation"><i class="solitude fa-solid fa-hashtag"></i>Minio<span class="tagsPageCount">1</span></span></a><a class="post-meta__tags" href="/tags/%E6%95%99%E7%A8%8B/"><span class="tags-punctuation"><i class="solitude fa-solid fa-hashtag"></i>教程<span class="tagsPageCount">3</span></span></a></div></div></div><nav class="needEndHide pagination-post" id="pagination"><div class="next-post pull-full"><a href="/posts/1569894275.html"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Koishi + Lagrange.OneBot 部署 QQ ChatGPT 机器人</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="solitude fa-solid fa-star"></i><span>喜欢这篇的人也看了</span><div class="relatedPosts-link"><a onclick="event.preventDefault(); toRandomPost();" href="javascript:void(0);" rel="external nofollow" data-pjax-state="">随便逛逛</a></div></div><div class="relatedPosts-list"><div><a href="/posts/616570609.html" title="让我们使用 Override 给傲慢的 GitHub Copilot 撅到飞起。"><img class="cover" src="https://minio.kl.do/picture/images/blog/db77fec0005e79a33b8f21b2e3ac9364.png" alt="cover"><div class="content is-center"><div class="title">让我们使用 Override 给傲慢的 GitHub Copilot 撅到飞起。</div></div></a></div><div><a href="/posts/8604.html" title="Docker 容器如何优雅地访问宿主机网络"><img class="cover" src="https://minio.kl.do/picture/images/blog/e676a9f504d4dccbcbd594558a3d407e.png" alt="cover"><div class="content is-center"><div class="title">Docker 容器如何优雅地访问宿主机网络</div></div></a></div></div></div><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="solitude fa-solid fa-comment"></i><span> 评论</span></div></div><div class="comment-wrap"><div id="twikoo-wrap"></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><div class="author-info__top-group"><div class="author-info__sayhi" id="author-info__sayhi" onclick="sco.changeSayHelloText()">sayhello.morning</div></div></div><div class="avatar-img-group"><img class="avatar-img" alt="头像" src="https://minio.kl.do/picture/images/avatar.png"><div class="avatar-sticker"><img class="avatar-sticker-img" src="https://7.isyangs.cn/34/65f2e4e0423cc-34.png" alt="心情贴纸"></div></div><div class="author-info__description_group"><div class="author-info__description">分享自己对编程的<b>热爱</b>，对美好生活的<b>向往</b>，对知识海洋<b>探索历程</b>。</div><div class="author-info__description2">一个热爱生活的人 / A person who loves life</div></div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/about/"><div class="author-info__name">FENG</div><div class="author-info__desc">行无限，路漫漫</div></a><div class="card-info-social-icons is-center"><a class="social-icon" target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/dalefengs" title="Github"><i class="solitude  fab fa-github"></i></a><a class="social-icon" href="mailto:dalefengs@gmail.com" rel="external nofollow noreferrer" title="EMail"><i class="solitude  st-mail-line"></i></a></div></div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="solitude fa-solid fa-bars"></i><span>文章目录</span></div><div class="toc-content" id="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Minio-Docker-%E5%8D%95%E8%8A%82%E7%82%B9%E5%8D%95%E7%A3%81%E7%9B%98"><span class="toc-text">Minio Docker 单节点单磁盘</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Docker-compose-%E6%90%AD%E5%BB%BA-HTTPS-%E8%8A%82%E7%82%B9"><span class="toc-text">Docker-compose 搭建 HTTPS 节点</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#docker-compose-yaml"><span class="toc-text">docker-compose.yaml</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE-HTTPS-%E8%AF%81%E4%B9%A6"><span class="toc-text">配置 HTTPS 证书</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%B0%E5%BB%BA-Bucket-%E5%B9%B6%E8%AE%BE%E4%B8%BA%E5%85%AC%E5%85%B1%E8%AE%BF%E9%97%AE"><span class="toc-text">新建 Bucket 并设为公共访问</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Nginx-%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86"><span class="toc-text">Nginx 反向代理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%87%E5%87%86%E7%9A%84Root%E9%85%8D%E7%BD%AE"><span class="toc-text">标准的 Root 配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%9ERoot%E9%85%8D%E7%BD%AE"><span class="toc-text">非 Root 配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9D%E5%A1%94%E9%9D%A2%E6%9D%BF"><span class="toc-text">宝塔面板</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#PicGO"><span class="toc-text">PicGO</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#PicGo-App"><span class="toc-text">PicGo App</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PicGO-Core"><span class="toc-text">PicGO-Core</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PicGo-Cli-%E6%8E%A8%E8%8D%90%E4%BD%BF%E7%94%A8"><span class="toc-text">PicGo-Cli 推荐使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Typora"><span class="toc-text">Typora</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="solitude fa-solid fa-map"></i><span>最近发布</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/4289372700.html" title="Docker 搭建 Minio2024 + picgo + typora 图床"><img alt="Docker 搭建 Minio2024 + picgo + typora 图床" src="https://minio.kl.do/picture/images/typora/image-20220403164604699.png"></a><div class="content"><span class="title" href="/posts/4289372700.html" title="Docker 搭建 Minio2024 + picgo + typora 图床">Docker 搭建 Minio2024 + picgo + typora 图床</span><span class="article-recent_post_categories" href="/posts/4289372700.html">Container</span></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/1569894275.html" title="Koishi + Lagrange.OneBot 部署 QQ ChatGPT 机器人"><img alt="Koishi + Lagrange.OneBot 部署 QQ ChatGPT 机器人" src="https://minio.kl.do/picture/images/blog/8985530be1413c0d1f8a24b2a3cc78c0.png"></a><div class="content"><span class="title" href="/posts/1569894275.html" title="Koishi + Lagrange.OneBot 部署 QQ ChatGPT 机器人">Koishi + Lagrange.OneBot 部署 QQ ChatGPT 机器人</span><span class="article-recent_post_categories" href="/posts/1569894275.html">Software</span></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/616570609.html" title="让我们使用 Override 给傲慢的 GitHub Copilot 撅到飞起。"><img alt="让我们使用 Override 给傲慢的 GitHub Copilot 撅到飞起。" src="https://minio.kl.do/picture/images/blog/db77fec0005e79a33b8f21b2e3ac9364.png"></a><div class="content"><span class="title" href="/posts/616570609.html" title="让我们使用 Override 给傲慢的 GitHub Copilot 撅到飞起。">让我们使用 Override 给傲慢的 GitHub Copilot 撅到飞起。</span><span class="article-recent_post_categories" href="/posts/616570609.html">Software</span></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/2752050206.html" title="Debian12 安装 zsh 及 配置 Oh my zsh"><img alt="Debian12 安装 zsh 及 配置 Oh my zsh" src="https://minio.kl.do/picture/images/blog/632037ab7ce86858a43bfd9636da2574.png"></a><div class="content"><span class="title" href="/posts/2752050206.html" title="Debian12 安装 zsh 及 配置 Oh my zsh">Debian12 安装 zsh 及 配置 Oh my zsh</span><span class="article-recent_post_categories" href="/posts/2752050206.html">Linux</span></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/12396.html" title="Golang Air 程序热更工具与 Goland、DLV 配合 Debug 调试程序"><img alt="Golang Air 程序热更工具与 Goland、DLV 配合 Debug 调试程序" src="https://minio.kl.do/picture/images/blog/961a346fd7ad049798d53fb9fb27e3ad.png"></a><div class="content"><span class="title" href="/posts/12396.html" title="Golang Air 程序热更工具与 Goland、DLV 配合 Debug 调试程序">Golang Air 程序热更工具与 Goland、DLV 配合 Debug 调试程序</span><span class="article-recent_post_categories" href="/posts/12396.html">Golang</span></div></div></div></div></div></div></main><footer id="footer"><div id="st-footer-bar"><div class="footer-logo"><span>FENG</span></div><div class="footer-bar-description">来自 知行 的文章</div><a class="footer-bar-link" href="/about/">Learn more / 了解更多</a></div><div id="footer_deal"><div class="nolazyload footer_mini_logo" id="footer_mini_logo" title="返回顶部" onclick="sco.toTop()"><img src alt="返回顶部"></div></div><div id="st-footer"></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div class="copyright">© 2022 - 2024 By&nbsp;<a class="footer-bar-link" href="/">FENG</a></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/dalefengs" alt="Github">Github</a><a class="footer-bar-link cc" target="_blank" rel="noopener external nofollow noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh"><i class="solitude fa-solid fa-copyright"></i><i class="solitude fa-brands fa-creative-commons-by"></i><i class="solitude fa-brands fa-creative-commons-nc"></i><i class="solitude fa-brands fa-creative-commons-nd"></i></a></div></div></div></footer></div><!-- right_menu--><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="solitude fa-solid fa-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="solitude fa-solid fa-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="solitude fa-solid fa-arrow-rotate-right"></i></div><div class="rightMenu-item" id="menu-top"><i class="solitude fa-solid fa-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="solitude fa-solid fa-clone"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="solitude fa-solid fa-clipboard"></i><span>粘贴文本</span></div><div class="rightMenu-item" id="menu-commenttext"><i class="solitude fa-solid fa-comment-medical"></i><span>引用到评论</span></div><div class="rightMenu-item" id="menu-newwindow"><i class="solitude fa-regular fa-window-maximize"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="solitude fa-solid fa-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="solitude fa-solid fa-clone"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="solitude fa-solid fa-cloud-arrow-down"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-search"><i class="solitude fa-solid fa-magnifying-glass"></i><span>站内搜索</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"></div><div class="rightMenu-group rightMenu-line rightMenuOther"><div class="rightMenu-item" id="menu-darkmode" onclick="sco.switchDarkMode()"><i class="solitude fa-solid fa-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></div></div></div><div id="rightmenu-mask"></div><!-- inject body--><div><script src="/js/utils.js?v=2.0.10"></script><script src="/js/main.js?v=2.0.10"></script><script src="/js/third_party/waterfall.min.js?v=2.0.10"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/js/third_party/universe.min.js?v=2.0.10"></script><script>dark()
+</script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><script src="/js/covercolor/local.js?v=2.0.10"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><script src="/js/right_menu.js?v=2.0.10"></script><div class="js-pjax"><script>(() => {
+    const getCount = () => {
+        const ele = document.querySelectorAll('.twikoo-count')
+        if (!ele) return
+        twikoo.getCommentsCount({
+            envId: 'http://dev.kl.do:23233/',
+            region: '',
+            urls: [window.location.pathname],
+            includeReply: false
+        }).then(res => {
+            ele.forEach(item => item.textContent = res[0].count)
+        }).catch(err => {
+            console.error(err)
+        })
+    }
+    const init = () => {
+        twikoo.init(Object.assign({
+            el: '#twikoo-wrap',
+            envId: 'http://dev.kl.do:23233/',
+            region: '',
+            path: window.location.pathname,
+            onCommentLoaded: () => {
+                GLOBAL_CONFIG.lightbox && utils.lightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+            }
+        }, null))
+
+        
+        sco.owoBig({
+            body: '.OwO-body',
+            item: '.OwO-items li'
+        })
+
+        false && barrageTwikoo()
+    }
+
+    const loadTwikoo = () => {
+        if (typeof twikoo === 'object') setTimeout(init,0)
+        else utils.getScript('https://cdnjs.cloudflare.com/ajax/libs/twikoo/1.6.39/twikoo.all.min.js').then(init)
+    }
+
+    if ('Twikoo' === 'Twikoo' || false) {
+        if (false) utils.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+        else loadTwikoo()
+    } else {
+        window.loadTwoComment = loadTwikoo
+    }
+})()
+</script><script defer pjax src="https://cdnjs.cloudflare.com/ajax/libs/busuanzi/2.3.0/bsz.pure.mini.min.js"></script></div></div><!-- pjax--><script>const pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: ['title','#body-wrap','#site-config','meta[name="description"]','.js-pjax','meta[property^="og:"]','#config-diff'],
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+})
+
+document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+})
+
+document.addEventListener('pjax:complete', () => {
+    window.refreshFn()
+
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+        const newScript = document.createElement('script')
+        const content = item.text || item.textContent || item.innerHTML || ""
+        Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+        newScript.appendChild(document.createTextNode(content))
+        item.parentNode.replaceChild(newScript, item)
+    })
+
+    GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+})
+
+document.addEventListener('pjax:error', (e) => {
+    if (e.request.status === 404) {
+        pjax.loadUrl('/404.html')
+    }
+})</script><!-- theme--><script>initTheme = () => {
+    const cachedMode = utils.saveToLocal.get('theme');
+    if (cachedMode === undefined)
+        document.documentElement.setAttribute('data-theme', 'light');
+    else
+        document.documentElement.setAttribute('data-theme', cachedMode);
+    typeof rm === 'object' && rm.mode(cachedMode === 'dark')
+}
+initTheme()</script><!-- google adsense--><!-- search--><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><button class="search-close-button"><i class="solitude fa-solid fa-xmark"></i></button></nav><div class="search-wrap"><div class="search-box"><input class="search-box-input" id="search-input" type="text" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off" placeholder="输入关键词快速查找"></div><div id="search-results"><div id="search-hits"><a class="tag-list" href="javascript:void(0);" rel="external nofollow noreferrer" onclick="pjax.loadUrl('/tags/IntelliJ/')">IntelliJ</a><a class="tag-list" href="javascript:void(0);" rel="external nofollow noreferrer" onclick="pjax.loadUrl('/tags/Docker/')">Docker</a></div></div><div id="search-pagination"></div><div id="search-tips"></div></div></div><div id="search-mask"></div></div><script src="/js/search/local.js?v=2.0.10"></script><!-- Tianli-Talk--><!-- music--></body></html><script>const posts=["posts/4289372700.html","posts/1569894275.html","posts/616570609.html","posts/2752050206.html","posts/12396.html","posts/8604.html","posts/2193637219.html","posts/243424817.html","posts/4202137968.html","posts/1312502623.html","posts/167770507.html","posts/722051157.html","posts/188783210.html","posts/1576613567.html","posts/2045486310.html","posts/3352666994.html","posts/2503342765.html","posts/2868604331.html","posts/4248709937.html","posts/419692717.html","posts/3077708436.html","posts/2249663406.html","posts/2093417083.html","posts/826509507.html","posts/4153064379.html","posts/902109.html","posts/3777199409.html","posts/4218605846.html","posts/141103848.html","posts/1582355105.html","posts/2458075637.html","posts/2537014801.html","posts/3181363109.html","posts/3009125945.html"];function toRandomPost(){ pjax.loadUrl(GLOBAL_CONFIG.root+posts[Math.floor(Math.random()*posts.length)]); }</script>
