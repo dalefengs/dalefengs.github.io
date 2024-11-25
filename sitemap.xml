@@ -2,6 +2,24 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://blog.kl.do/posts/592274152.html</loc>
+    
+    <lastmod>2024-09-02</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.kl.do/posts/8604.html</loc>
+    
+    <lastmod>2024-08-31</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://blog.kl.do/message/index.html</loc>
     
     <lastmod>2024-08-23</lastmod>
@@ -317,15 +335,6 @@
   </url>
   
   <url>
-    <loc>https://blog.kl.do/posts/8604.html</loc>
-    
-    <lastmod>2024-01-18</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://blog.kl.do/posts/188783210.html</loc>
     
     <lastmod>2023-04-09</lastmod>
@@ -346,7 +355,7 @@
 
   <url>
     <loc>https://blog.kl.do/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -354,182 +363,203 @@
   
   <url>
     <loc>https://blog.kl.do/tags/ArchLinux/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/Linux/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/Shell/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/Java/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/Golang/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/%E5%B0%8F%E5%B7%A5%E5%85%B7/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/%E7%AE%97%E6%B3%95/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/Jwt/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/PHP/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/Docker/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/Maven/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/Minio/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/%E6%95%99%E7%A8%8B/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/gRPC/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/CentOS/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/Debian/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/IntelliJ/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/%E7%83%AD%E9%97%A8/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/AI/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/Copilot/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/Github/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/ChatGPT/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/Bot/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/HTTP/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/tags/PicGO/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.kl.do/tags/Kafka/</loc>
+    <lastmod>2024-09-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.kl.do/tags/Zookeeper/</loc>
+    <lastmod>2024-09-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.kl.do/tags/Software/</loc>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -538,56 +568,56 @@
   
   <url>
     <loc>https://blog.kl.do/categories/Linux/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/categories/%E7%BC%96%E7%A8%8B/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/categories/Golang/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/categories/Golang/%E5%BE%AE%E6%9C%8D%E5%8A%A1/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/categories/Container/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/categories/Software/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://blog.kl.do/categories/Web/</loc>
-    <lastmod>2024-08-23</lastmod>
+    <lastmod>2024-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
